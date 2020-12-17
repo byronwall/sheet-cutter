@@ -27,13 +27,7 @@ export class PanelComp extends React.Component<PanelProps, PanelState> {
           border: "1px solid black",
         }}
       >
-        {panel.material +
-          "\n" +
-          panel.id +
-          "\n" +
-          panel.height +
-          "\n" +
-          panel.width}
+        {panel.material + "\n" + panel.height + "\n" + panel.width}
       </div>
     );
   }

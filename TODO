@@ -1,11 +1,16 @@
 Initial release:
-    Graphics:
+    Graphics/UX:
         ☐ Need to get a coherent display
         ☐ Show the history of a how a piece got to where it is
         ☐ Allow for pieces to be placed back in their "original" place
+        ☐ Use a consistent color scheme for panel material as well as panel ID
     Algo:
         ☐ Devise a single system for describing the seqeunce of cuts - need this for optimizing
         ☐ Allow for minimizing the total length of cut - hopefully avoid 8' rips
+
+    Features:
+        ☐ Consider adding material weight
+        ☐ Add a board feet calculation - just need to encode thickness
     Documentation:
         ☐ Document the CSV format
         ☐ Create some help files

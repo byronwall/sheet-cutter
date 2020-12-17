@@ -1,6 +1,7 @@
 import React from "react";
 import { CutJob, CutJobResults } from "./model";
 import { PanelComp } from "./Panel";
+import { PanelContainer } from "./PanelContainer";
 
 interface JobViewerProps {
   job?: CutJob;
@@ -33,27 +34,19 @@ export class JobViewer extends React.Component<JobViewerProps, JobViewerState> {
 
         <h2>starting panels</h2>
 
-        {job.availablePanels.map((panel) => (
-          <PanelComp panel={panel} />
-        ))}
-
-        <h2>needed panels</h2>
-
-        {job.neededPanels.map((panel) => (
-          <PanelComp panel={panel} />
-        ))}
-
-        <h2>leftover panels</h2>
-
-        {result.panelInventory.map((panel) => (
-          <PanelComp panel={panel} />
-        ))}
+        <PanelContainer panels={job.availablePanels} />
 
         <h2>panels not made</h2>
 
-        {result.panelsNotPlaced.map((panel) => (
-          <PanelComp panel={panel} />
-        ))}
+        <PanelContainer panels={result.panelsNotPlaced} />
+
+        <h2>panels made</h2>
+
+        <PanelContainer panels={result.panelsMade} />
+
+        <h2>leftover panels</h2>
+
+        <PanelContainer panels={result.panelInventory} />
       </div>
     );
   }

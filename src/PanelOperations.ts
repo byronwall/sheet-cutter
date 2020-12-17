@@ -223,12 +223,11 @@ function getBestCut(parentPanel: Panel, childPanel: Panel): CutJobStep[] {
 }
 
 function getPanelWaste(parentPanel: Panel, childPanel: Panel) {
-  // TODO: check if the panel will actually fit
-
   const {
     bigDim: parentBig,
     smallDim: parentSmall,
   } = getBigAndSmallSideOfPanel(parentPanel);
+
   const { bigDim: childBig, smallDim: childSmall } = getBigAndSmallSideOfPanel(
     childPanel
   );
