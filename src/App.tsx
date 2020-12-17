@@ -1,26 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { handleStringChange } from "./helpers";
+import { JobViewer } from "./JobViewer";
+import { CutJob, CutJobResults } from "./model";
+import { convertCsvToJob, determineCutOrderForJob } from "./PanelOperations";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface AppProps {}
+interface AppState {
+  inputText: string;
+
+  job: CutJob | undefined;
+  results: CutJobResults | undefined;
 }
 
-export default App;
+export class App extends React.Component<AppProps, AppState> {
+  constructor(props: AppProps) {
+    super(props);
+
+    this.state = { inputText: "", job: undefined, results: undefined };
+  }
+
+  componentDidMount() {}
+
+  componentDidUpdate(prevProps: AppProps, prevState: AppState) {}
+
+  render() {
+    return (
+      <div>
+        <p>App</p>
+
+        <div>
+          <textarea
+            value={this.state.inputText}
+            onChange={handleStringChange((inputText) =>
+              this.setState({ inputText })
+            )}
+          />
+
+          <button onClick={() => this.handleProcessClick()}>process !</button>
+        </div>
+        <div>
+          <h1>job</h1>
+          <JobViewer job={this.state.job} result={this.state.results} />
+        </div>
+      </div>
+    );
+  }
+  handleProcessClick(): void {
+    // get the input and send to job creation
+
+    const newJob = convertCsvToJob(this.state.inputText);
+
+    console.log("job start", newJob);
+
+    const results = determineCutOrderForJob(newJob);
+
+    console.log("result", results);
+
+    this.setState({ job: newJob, results });
+  }
+}
