@@ -10,6 +10,7 @@ const defaultJob = raw("./cut list.csv");
 interface AppProps {}
 interface AppState {
   inputText: string;
+  kerfText: string;
 
   job: CutJob | undefined;
   results: CutJobResults | undefined;
@@ -19,7 +20,12 @@ export class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
 
-    this.state = { inputText: defaultJob, job: undefined, results: undefined };
+    this.state = {
+      inputText: defaultJob,
+      job: undefined,
+      results: undefined,
+      kerfText: "0.25",
+    };
   }
 
   componentDidMount() {}
@@ -39,6 +45,13 @@ export class App extends React.Component<AppProps, AppState> {
             )}
           />
 
+          <input
+            value={this.state.kerfText}
+            onChange={handleStringChange((kerfText) =>
+              this.setState({ kerfText })
+            )}
+          />
+
           <button onClick={() => this.handleProcessClick()}>process !</button>
         </div>
         <div>
@@ -52,6 +65,8 @@ export class App extends React.Component<AppProps, AppState> {
     // get the input and send to job creation
 
     const newJob = convertCsvToJob(this.state.inputText);
+
+    newJob.settings.bladeKerf = +this.state.kerfText;
 
     console.log("job start", newJob);
 

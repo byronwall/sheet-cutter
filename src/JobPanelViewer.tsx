@@ -57,7 +57,14 @@ export class JobPanelViewer extends React.Component<
           }
 
           return (
-            <div style={{ marginTop: 20 }}>
+            <div
+              style={{
+                marginTop: 20,
+                pageBreakInside: "avoid",
+                WebkitPrintColorAdjust: "exact",
+              }}
+              key={panel.id}
+            >
               <p>
                 {panel.label} - {panel.height} x {panel.width}
               </p>
@@ -68,10 +75,15 @@ export class JobPanelViewer extends React.Component<
                     width: panel.width * 5,
                     border: "1px solid black",
                     position: "relative",
+                    backgroundColor: "red",
                   }}
                 >
                   {childPanels.map((childPanel) => {
-                    if (childPanel.originalSourcePos === undefined) {
+                    if (
+                      childPanel.originalSourcePos === undefined ||
+                      childPanel.height <= 0 ||
+                      childPanel.width <= 0
+                    ) {
                       return null;
                     }
 
@@ -82,6 +94,7 @@ export class JobPanelViewer extends React.Component<
                     const displayText = isInventory ? "" : childPanel.id;
                     return (
                       <div
+                        key={childPanel.id}
                         style={{
                           height: childPanel.height * 5,
                           width: childPanel.width * 5,

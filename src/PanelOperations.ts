@@ -3,6 +3,7 @@ import {
   CutDirection,
   CutJob,
   CutJobResults,
+  CutJobSetting,
   CutJobStep,
   Panel,
   PanelPos,
@@ -44,7 +45,7 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
 
     const panelsToHoldIt = panelInventory
       .filter((c) => c.material === panelToPlace.material)
-      .filter((c) => willFirstPanelHoldSecond(c, panelToPlace));
+      .filter((c) => willFirstPanelHoldSecond(c, panelToPlace, job.settings));
 
     // nowhere to put it - add to bad list
     if (panelsToHoldIt.length === 0) {
@@ -77,7 +78,7 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
 
     // choose best direction on that panel
     // create job steps for each of the cuts needed (may only be one)
-    const bestCuts = getBestCut(bestHoldingPanel, panelToPlace);
+    const bestCuts = getBestCut(bestHoldingPanel, panelToPlace, job.settings);
 
     if (bestCuts.length === 0) {
       // new panel is perfect size -- no cuts needed
@@ -89,7 +90,8 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
 
     const { goodPanel, wastePanel } = getNewPanelsFromCut(
       bestHoldingPanel,
-      cut1
+      cut1,
+      job.settings
     );
 
     if (goodPanel === undefined) {
@@ -110,7 +112,7 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
       const {
         goodPanel: finalPanel,
         wastePanel: wastePanel2,
-      } = getNewPanelsFromCut(goodPanel, cut2);
+      } = getNewPanelsFromCut(goodPanel, cut2, job.settings);
 
       if (finalPanel === undefined) {
         console.warn("panel was undefined?");
@@ -148,7 +150,8 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
  */
 function getNewPanelsFromCut(
   originalPanel: Panel,
-  cut: CutJobStep | undefined
+  cut: CutJobStep | undefined,
+  settings: CutJobSetting
 ) {
   if (cut === undefined) {
     console.error("cut undefined");
@@ -174,16 +177,25 @@ function getNewPanelsFromCut(
 
   if (cut.cutDirection === CutDirection.HORIZONTAL) {
     // this will reduce the height by position
-    wastePanel.height -= cut.cutPosition;
-    wastePanel.parentSourcePos = { top: cut.cutPosition, left: 0 };
+    wastePanel.height -= cut.cutPosition + settings.bladeKerf;
+    wastePanel.parentSourcePos = {
+      top: cut.cutPosition + settings.bladeKerf,
+      left: 0,
+    };
 
     goodPanel.height = cut.cutPosition;
   } else {
-    wastePanel.width -= cut.cutPosition;
-    wastePanel.parentSourcePos = { top: 0, left: cut.cutPosition };
+    wastePanel.width -= cut.cutPosition + settings.bladeKerf;
+    wastePanel.parentSourcePos = {
+      top: 0,
+      left: cut.cutPosition + settings.bladeKerf,
+    };
 
     goodPanel.width = cut.cutPosition;
   }
+
+  wastePanel.height = Math.max(wastePanel.height, 0);
+  wastePanel.width = Math.max(wastePanel.width, 0);
 
   // update waste panel pos
   wastePanel.originalSourcePos = addSourcePos(
@@ -211,14 +223,21 @@ function addSourcePos(
   return { left: pos1.left + pos2.left, top: pos1.top + pos2.top };
 }
 
-function getBestCut(parentPanel: Panel, childPanel: Panel): CutJobStep[] {
+function getBestCut(
+  parentPanel: Panel,
+  childPanel: Panel,
+  settings: CutJobSetting
+): CutJobStep[] {
   // test if the piece should be rotated -- will do the calc twice
 
-  const wasteHeight = parentPanel.height - childPanel.height;
-  const wasteWidth = parentPanel.width - childPanel.width;
+  const wasteHeight =
+    parentPanel.height - childPanel.height + settings.bladeKerf;
+  const wasteWidth = parentPanel.width - childPanel.width + settings.bladeKerf;
 
-  const wasteHeightRot = parentPanel.height - childPanel.width;
-  const wasteWidthRot = parentPanel.width - childPanel.height;
+  const wasteHeightRot =
+    parentPanel.height - childPanel.width + settings.bladeKerf;
+  const wasteWidthRot =
+    parentPanel.width - childPanel.height + settings.bladeKerf;
 
   // we know it has to fit one way -- if either measure if negative, assume the other
 
@@ -322,7 +341,11 @@ function getBigAndSmallSideOfPanel(panelA: Panel) {
   return { bigDim, smallDim };
 }
 
-function willFirstPanelHoldSecond(parentPanel: Panel, childPanel: Panel) {
+function willFirstPanelHoldSecond(
+  parentPanel: Panel,
+  childPanel: Panel,
+  settings: CutJobSetting
+) {
   // it will fit if the biggest dimension is bigger or equal and smaller is also bigger or equal
 
   const {
@@ -337,6 +360,7 @@ function willFirstPanelHoldSecond(parentPanel: Panel, childPanel: Panel) {
 }
 
 export function convertCsvToJob(input: string) {
+  nextId = 1;
   // read the input into lines
 
   const lines = input.split("\n");
