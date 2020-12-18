@@ -50,41 +50,74 @@ export class JobPanelViewer extends React.Component<
 
         {this.props.startPanels.map((panel) => {
           const childPanels = groups[panel.id];
+
+          // will only have itself if none used
+          if (childPanels.length === 1) {
+            return null;
+          }
+
           return (
-            <div>
-              <p>{panel.id}</p>
-              <div
-                style={{
-                  height: panel.height * 5,
-                  width: panel.width * 5,
+            <div style={{ marginTop: 20 }}>
+              <p>
+                {panel.label} - {panel.height} x {panel.width}
+              </p>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    height: panel.height * 5,
+                    width: panel.width * 5,
+                    border: "1px solid black",
+                    position: "relative",
+                  }}
+                >
+                  {childPanels.map((childPanel) => {
+                    if (childPanel.originalSourcePos === undefined) {
+                      return null;
+                    }
 
-                  position: "relative",
-                  marginTop: 20,
-                }}
-              >
-                {childPanels.map((childPanel) => {
-                  if (childPanel.originalSourcePos === undefined) {
-                    return null;
-                  }
+                    const isInventory = this.props.inventoryPanels.includes(
+                      childPanel
+                    );
 
-                  const isInventory = this.props.inventoryPanels.includes(
-                    childPanel
-                  );
+                    const displayText = isInventory ? "" : childPanel.id;
+                    return (
+                      <div
+                        style={{
+                          height: childPanel.height * 5,
+                          width: childPanel.width * 5,
+                          border: "1px dashed #000",
+                          position: "absolute",
+                          top: childPanel.originalSourcePos.top * 5,
+                          left: childPanel.originalSourcePos.left * 5,
+                          backgroundColor: isInventory ? "#ddd" : "white",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <p>{displayText}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ marginLeft: 10 }}>
+                  {childPanels.map((child) => {
+                    const isInventory = this.props.inventoryPanels.includes(
+                      child
+                    );
 
-                  return (
-                    <div
-                      style={{
-                        height: childPanel.height * 5,
-                        width: childPanel.width * 5,
-                        border: "1px solid red",
-                        position: "absolute",
-                        top: childPanel.originalSourcePos.top * 5,
-                        left: childPanel.originalSourcePos.left * 5,
-                        backgroundColor: isInventory ? "red" : "white",
-                      }}
-                    ></div>
-                  );
-                })}
+                    if (isInventory) {
+                      return null;
+                    }
+
+                    return (
+                      <p>
+                        {child.id} - {child.label} - {child.height} x{" "}
+                        {child.width}
+                      </p>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           );

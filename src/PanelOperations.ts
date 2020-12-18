@@ -96,6 +96,7 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
       console.error("failed on a cut?");
       break;
     }
+    goodPanel.label = panelToPlace.label;
 
     cutsInOrder.push(cut1);
 
@@ -155,10 +156,10 @@ function getNewPanelsFromCut(
   }
 
   const wastePanel = _.cloneDeep(originalPanel);
-  wastePanel.id += "-" + nextId++;
+  wastePanel.id = nextId++;
 
   const goodPanel = _.cloneDeep(originalPanel);
-  goodPanel.id += "-" + nextId++;
+  goodPanel.id = nextId++;
 
   // TODO: include steps to get back raw source from here
   goodPanel.parentSourcePos = { left: 0, top: 0 };
@@ -255,11 +256,17 @@ function getBestCut(parentPanel: Panel, childPanel: Panel): CutJobStep[] {
   if (parentPanel.height - heightToUse > epsilon) {
     // add the height job = HORIZONTAL cut
 
-    cutResults.push({
+    const horizontalCut = {
       cutDirection: CutDirection.HORIZONTAL,
       cutPosition: heightToUse,
       panelIdToCut: parentPanel.id,
-    });
+    };
+
+    if (parentPanel.height > parentPanel.width) {
+      cutResults.unshift(horizontalCut);
+    } else {
+      cutResults.push(horizontalCut);
+    }
   }
 
   return cutResults;
@@ -375,12 +382,14 @@ Length,Width,Quantity,Material,Label,Inventory
       [height, width] = [width, height];
     }
 
-    for (let i = 0; i < qty; i++) {
-      const newPanel = {
+    for (let i = 1; i <= qty; i++) {
+      const labelToUse = qty > 1 ? label + "-" + i : label;
+      const newPanel: Panel = {
         height,
         width,
-        id: label + "-" + nextId++,
+        id: nextId++,
         material,
+        label: labelToUse,
       };
 
       if (inventory) {

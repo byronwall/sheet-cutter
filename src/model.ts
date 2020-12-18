@@ -1,4 +1,4 @@
-type PanelId = string;
+type PanelId = number;
 
 export interface Panel {
   height: number;
@@ -7,6 +7,8 @@ export interface Panel {
   material: string;
 
   id: PanelId;
+
+  label: string;
 
   originalSource?: PanelId;
   parentSource?: PanelId;
