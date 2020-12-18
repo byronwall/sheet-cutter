@@ -29,5 +29,7 @@ Length,Width,Quantity,Material,Label,
 
 48",96",3,3/4 PLY,3/4 PLY,true
 48",96",2,1/2 PLY,1/2 PLY,true
-96",7.5",2,3/4 Poplar,POPLAR,true
+96",7.25",2,3/4 Poplar,POPLAR,true
+52",7.25",2,3/4 Poplar,POPLAR,true
 48",62",1,3/4 PLY,3/4 PLY PARTIAL,true
+39",30",1,3/4 PLY,3/4 PLY PARTIAL2,true

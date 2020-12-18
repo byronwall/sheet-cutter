@@ -31,10 +31,6 @@ export class JobViewer extends React.Component<JobViewerProps, JobViewerState> {
 
     return (
       <div>
-        <p>JobViewer</p>
-
-        <h2>viewer</h2>
-
         <JobPanelViewer
           startPanels={job.availablePanels}
           madePanels={result.panelsMade}

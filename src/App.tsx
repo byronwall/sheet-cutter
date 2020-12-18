@@ -29,7 +29,7 @@ export class App extends React.Component<AppProps, AppState> {
   render() {
     return (
       <div id="container">
-        <p>App</p>
+        <h1>sheet cutter</h1>
 
         <div>
           <textarea
@@ -42,7 +42,7 @@ export class App extends React.Component<AppProps, AppState> {
           <button onClick={() => this.handleProcessClick()}>process !</button>
         </div>
         <div>
-          <h1>job</h1>
+          <h2>results</h2>
           <JobViewer job={this.state.job} result={this.state.results} />
         </div>
       </div>

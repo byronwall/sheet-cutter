@@ -44,8 +44,6 @@ export class JobPanelViewer extends React.Component<
 
     return (
       <div>
-        <p>JobPanelViewer</p>
-
         {this.props.notMadePanels.map((panel) => {
           return <PanelComp panel={panel} />;
         })}
@@ -59,7 +57,7 @@ export class JobPanelViewer extends React.Component<
                 style={{
                   height: panel.height * 5,
                   width: panel.width * 5,
-                  border: "2px solid black",
+
                   position: "relative",
                   marginTop: 20,
                 }}
