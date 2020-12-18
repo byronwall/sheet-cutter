@@ -1,4 +1,5 @@
 import React from "react";
+import { JobPanelViewer } from "./JobPanelViewer";
 import { CutJob, CutJobResults } from "./model";
 import { PanelComp } from "./Panel";
 import { PanelContainer } from "./PanelContainer";
@@ -32,21 +33,14 @@ export class JobViewer extends React.Component<JobViewerProps, JobViewerState> {
       <div>
         <p>JobViewer</p>
 
-        <h2>starting panels</h2>
+        <h2>viewer</h2>
 
-        <PanelContainer panels={job.availablePanels} />
-
-        <h2>panels not made</h2>
-
-        <PanelContainer panels={result.panelsNotPlaced} />
-
-        <h2>panels made</h2>
-
-        <PanelContainer panels={result.panelsMade} />
-
-        <h2>leftover panels</h2>
-
-        <PanelContainer panels={result.panelInventory} />
+        <JobPanelViewer
+          startPanels={job.availablePanels}
+          madePanels={result.panelsMade}
+          inventoryPanels={result.panelInventory}
+          notMadePanels={result.panelsNotPlaced}
+        />
       </div>
     );
   }

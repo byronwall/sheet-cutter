@@ -7,8 +7,19 @@ export interface Panel {
   material: string;
 
   id: PanelId;
+
+  originalSource?: PanelId;
+  parentSource?: PanelId;
+
+  /** determines from where panel started from its parent */
+  parentSourcePos?: PanelPos;
+  originalSourcePos?: PanelPos;
 }
 
+export interface PanelPos {
+  top: number;
+  left: number;
+}
 export interface CutJob {
   availablePanels: Panel[];
   neededPanels: Panel[];

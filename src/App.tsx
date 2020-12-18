@@ -4,6 +4,9 @@ import { JobViewer } from "./JobViewer";
 import { CutJob, CutJobResults } from "./model";
 import { convertCsvToJob, determineCutOrderForJob } from "./PanelOperations";
 
+import raw from "raw.macro";
+const defaultJob = raw("./cut list.csv");
+
 interface AppProps {}
 interface AppState {
   inputText: string;
@@ -16,7 +19,7 @@ export class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
 
-    this.state = { inputText: "", job: undefined, results: undefined };
+    this.state = { inputText: defaultJob, job: undefined, results: undefined };
   }
 
   componentDidMount() {}
@@ -25,7 +28,7 @@ export class App extends React.Component<AppProps, AppState> {
 
   render() {
     return (
-      <div>
+      <div id="container">
         <p>App</p>
 
         <div>

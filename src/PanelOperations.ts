@@ -5,6 +5,7 @@ import {
   CutJobResults,
   CutJobStep,
   Panel,
+  PanelPos,
 } from "./model";
 
 let nextId = 1;
@@ -15,6 +16,12 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
   // sort the panels and process in order
 
   const panelInventory = _.cloneDeep(job.availablePanels);
+
+  // inventory points to itself
+  panelInventory.forEach((c) => {
+    c.originalSource = c.id;
+    c.parentSource = c.id;
+  });
 
   const panelsNeed = _.cloneDeep(job.neededPanels);
   panelsNeed.sort(comparePanels);
@@ -153,16 +160,54 @@ function getNewPanelsFromCut(
   const goodPanel = _.cloneDeep(originalPanel);
   goodPanel.id += "-" + nextId++;
 
+  // TODO: include steps to get back raw source from here
+  goodPanel.parentSourcePos = { left: 0, top: 0 };
+
+  goodPanel.originalSourcePos = addSourcePos(
+    originalPanel.originalSourcePos,
+    goodPanel.parentSourcePos
+  );
+
+  goodPanel.parentSource = originalPanel.id;
+  goodPanel.originalSource = originalPanel.originalSource ?? originalPanel.id;
+
   if (cut.cutDirection === CutDirection.HORIZONTAL) {
     // this will reduce the height by position
     wastePanel.height -= cut.cutPosition;
+    wastePanel.parentSourcePos = { top: cut.cutPosition, left: 0 };
+
     goodPanel.height = cut.cutPosition;
   } else {
     wastePanel.width -= cut.cutPosition;
+    wastePanel.parentSourcePos = { top: 0, left: cut.cutPosition };
+
     goodPanel.width = cut.cutPosition;
   }
 
+  // update waste panel pos
+  wastePanel.originalSourcePos = addSourcePos(
+    originalPanel.originalSourcePos,
+    wastePanel.parentSourcePos
+  );
+  wastePanel.parentSource = originalPanel.id;
+  wastePanel.originalSource = originalPanel.originalSource ?? originalPanel.id;
+
   return { goodPanel, wastePanel };
+}
+
+function addSourcePos(
+  pos1: PanelPos | undefined,
+  pos2: PanelPos | undefined
+): PanelPos {
+  if (pos1 === undefined) {
+    pos1 = { top: 0, left: 0 };
+  }
+
+  if (pos2 === undefined) {
+    pos2 = { top: 0, left: 0 };
+  }
+
+  return { left: pos1.left + pos2.left, top: pos1.top + pos2.top };
 }
 
 function getBestCut(parentPanel: Panel, childPanel: Panel): CutJobStep[] {
@@ -197,22 +242,22 @@ function getBestCut(parentPanel: Panel, childPanel: Panel): CutJobStep[] {
 
   const epsilon = 0.001;
 
-  if (parentPanel.height - heightToUse > epsilon) {
-    // add the height job = HORIZONTAL cut
-
-    cutResults.push({
-      cutDirection: CutDirection.HORIZONTAL,
-      cutPosition: heightToUse,
-      panelIdToCut: parentPanel.id,
-    });
-  }
-
   if (parentPanel.width - widthToUse > epsilon) {
     // add the height job = VERTICAL cut
 
     cutResults.push({
       cutDirection: CutDirection.VERTICAL,
       cutPosition: widthToUse,
+      panelIdToCut: parentPanel.id,
+    });
+  }
+
+  if (parentPanel.height - heightToUse > epsilon) {
+    // add the height job = HORIZONTAL cut
+
+    cutResults.push({
+      cutDirection: CutDirection.HORIZONTAL,
+      cutPosition: heightToUse,
       panelIdToCut: parentPanel.id,
     });
   }
@@ -303,7 +348,7 @@ export function convertCsvToJob(input: string) {
       continue;
     }
 
-    if (line === "") {
+    if (line.trim() === "") {
       continue;
     }
 
