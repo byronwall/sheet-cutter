@@ -66,13 +66,6 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
       break;
     }
 
-    console.log(
-      "testing panel",
-      panelToPlace,
-      bestHoldingPanel,
-      panelsToHoldIt
-    );
-
     // remove the known panel since it's going to be split
     _.remove(panelInventory, (c) => c.id === bestHoldingPanel.id);
 
@@ -230,67 +223,132 @@ function getBestCut(
 ): CutJobStep[] {
   // test if the piece should be rotated -- will do the calc twice
 
-  const wasteHeight =
-    parentPanel.height - childPanel.height + settings.bladeKerf;
-  const wasteWidth = parentPanel.width - childPanel.width + settings.bladeKerf;
+  // do this based on keeping the largest biggest area pieces
 
-  const wasteHeightRot =
-    parentPanel.height - childPanel.width + settings.bladeKerf;
-  const wasteWidthRot =
-    parentPanel.width - childPanel.height + settings.bladeKerf;
+  const wasteHeight = parentPanel.height - childPanel.height;
+  const wasteWidth = parentPanel.width - childPanel.width;
 
-  // we know it has to fit one way -- if either measure if negative, assume the other
+  const mustRotate = wasteHeight < 0 || wasteWidth < 0;
 
-  const wasteNormal =
-    wasteHeight < 0 || wasteWidth < 0
-      ? Number.MAX_VALUE
-      : wasteHeight + wasteWidth;
+  const wasteHeightRot = parentPanel.height - childPanel.width;
+  const wasteWidthRot = parentPanel.width - childPanel.height;
 
-  const wasteRot =
-    wasteHeightRot < 0 || wasteWidthRot < 0
-      ? Number.MAX_VALUE
-      : wasteHeightRot + wasteWidthRot;
-
-  const cutResults: CutJobStep[] = [];
+  const canRotate = wasteHeightRot >= 0 && wasteWidthRot >= 0;
 
   // first cut is for the height
 
-  const isRotated = wasteRot < wasteNormal;
+  // figure out if rotating is better
 
-  const heightToUse = isRotated ? childPanel.width : childPanel.height;
-  const widthToUse = isRotated ? childPanel.height : childPanel.width;
+  const normalCuts = getBestCutSingleTest(
+    childPanel.width,
+    childPanel.height,
+    parentPanel,
+    settings
+  );
+  const rotatedCuts = getBestCutSingleTest(
+    childPanel.height,
+    childPanel.width,
+    parentPanel,
+    settings
+  );
 
+  if (mustRotate) {
+    return rotatedCuts.cuts;
+  }
+
+  if (!canRotate || normalCuts.biggestArea > rotatedCuts.biggestArea) {
+    return normalCuts.cuts;
+  }
+
+  return rotatedCuts.cuts;
+}
+
+interface CutTestResult {
+  cuts: CutJobStep[];
+  biggestArea: number;
+}
+
+function getBestCutSingleTest(
+  widthToUse: number,
+  heightToUse: number,
+  parentPanel: Panel,
+  settings: CutJobSetting
+): CutTestResult {
   const epsilon = 0.001;
 
-  if (parentPanel.width - widthToUse > epsilon) {
+  const needsVerticalCut = parentPanel.width - widthToUse > epsilon;
+  const needsHorizontalCut = parentPanel.height - heightToUse > epsilon;
+
+  const kerf = settings.bladeKerf;
+
+  const verticalCut: CutJobStep = {
+    cutDirection: CutDirection.VERTICAL,
+    cutPosition: widthToUse,
+    panelIdToCut: parentPanel.id,
+  };
+
+  const horizontalCut: CutJobStep = {
+    cutDirection: CutDirection.HORIZONTAL,
+    cutPosition: heightToUse,
+    panelIdToCut: parentPanel.id,
+  };
+
+  if (needsHorizontalCut && needsVerticalCut) {
+    const biggestAreaIfHorizontalFirst = Math.max(
+      heightToUse * (parentPanel.width - widthToUse - kerf),
+      (parentPanel.height - heightToUse - kerf) * parentPanel.width
+    );
+
+    const biggestAreaIfVerticalFirst = Math.max(
+      widthToUse * (parentPanel.height - heightToUse - kerf),
+      (parentPanel.width - widthToUse - kerf) * parentPanel.height
+    );
+
+    const cutLengthIfHorizontalFirst = parentPanel.width + heightToUse;
+    const cutLengthIfVerticalFirst = parentPanel.height + widthToUse;
+
+    if (settings.optimizeArea) {
+      if (biggestAreaIfHorizontalFirst > biggestAreaIfVerticalFirst) {
+        return {
+          cuts: [horizontalCut, verticalCut],
+          biggestArea: biggestAreaIfHorizontalFirst,
+        };
+      }
+
+      return {
+        cuts: [verticalCut, horizontalCut],
+        biggestArea: biggestAreaIfVerticalFirst,
+      };
+    }
+
+    if (cutLengthIfVerticalFirst > cutLengthIfHorizontalFirst) {
+      return {
+        cuts: [horizontalCut, verticalCut],
+        biggestArea: -cutLengthIfHorizontalFirst,
+      };
+    }
+
+    return {
+      cuts: [verticalCut, horizontalCut],
+      biggestArea: -cutLengthIfVerticalFirst,
+    };
+  }
+
+  // TODO: determine the order here based on biggest single piece
+
+  if (needsVerticalCut) {
     // add the height job = VERTICAL cut
 
-    cutResults.push({
-      cutDirection: CutDirection.VERTICAL,
-      cutPosition: widthToUse,
-      panelIdToCut: parentPanel.id,
-    });
+    return { cuts: [verticalCut], biggestArea: Number.MAX_VALUE / 2 };
   }
 
-  if (parentPanel.height - heightToUse > epsilon) {
+  if (needsHorizontalCut) {
     // add the height job = HORIZONTAL cut
 
-    const horizontalCut = {
-      cutDirection: CutDirection.HORIZONTAL,
-      cutPosition: heightToUse,
-      panelIdToCut: parentPanel.id,
-    };
-
-    if (parentPanel.height > parentPanel.width) {
-      cutResults.unshift(horizontalCut);
-    } else {
-      cutResults.push(horizontalCut);
-    }
+    return { cuts: [horizontalCut], biggestArea: Number.MAX_VALUE / 2 };
   }
 
-  return cutResults;
-
-  // next cut is for the width
+  return { cuts: [], biggestArea: Number.MAX_VALUE };
 }
 
 function getPanelWaste(parentPanel: Panel, childPanel: Panel) {
@@ -302,6 +360,17 @@ function getPanelWaste(parentPanel: Panel, childPanel: Panel) {
   const { bigDim: childBig, smallDim: childSmall } = getBigAndSmallSideOfPanel(
     childPanel
   );
+
+  // short circuit for exact match
+
+  if (
+    childBig === parentBig ||
+    childSmall === parentSmall ||
+    childBig === parentSmall ||
+    childSmall === parentBig
+  ) {
+    return 1;
+  }
 
   return ((childBig / parentBig) * childSmall) / parentSmall;
 }
@@ -368,7 +437,7 @@ export function convertCsvToJob(input: string) {
   const job: CutJob = {
     availablePanels: [],
     neededPanels: [],
-    settings: { bladeKerf: 0.25 },
+    settings: { bladeKerf: 0.25, optimizeArea: false },
   };
 
   let isFirst = true;

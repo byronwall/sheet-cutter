@@ -1,4 +1,4 @@
 Length,Width,Quantity,Material,Label,Inventory
-20 in,16 in,1,0.5 in,Side L,
+24 in,6 in,1,0.5 in,Side L,
 
-48 in,96 in,1,0.5 in,1/2 PLY,True
+40 in,24 in,1,0.5 in,1/2 PLY,True

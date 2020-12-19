@@ -40,8 +40,6 @@ export class JobPanelViewer extends React.Component<
 
     const groups = _.groupBy(panelsToGroup, (c) => c.originalSource);
 
-    console.log("groups", groups, this.props);
-
     return (
       <div>
         {this.props.notMadePanels.map((panel) => {
@@ -124,7 +122,7 @@ export class JobPanelViewer extends React.Component<
                     }
 
                     return (
-                      <p>
+                      <p key={child.id}>
                         {child.id} - {child.label} - {child.height} x{" "}
                         {child.width}
                       </p>

@@ -50,4 +50,6 @@ export interface CutJobResults {
 
 export interface CutJobSetting {
   bladeKerf: number;
+
+  optimizeArea: boolean;
 }

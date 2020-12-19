@@ -1,5 +1,5 @@
 import React from "react";
-import { handleStringChange } from "./helpers";
+import { handleBooleanChange, handleStringChange } from "./helpers";
 import { JobViewer } from "./JobViewer";
 import { CutJob, CutJobResults } from "./model";
 import { convertCsvToJob, determineCutOrderForJob } from "./PanelOperations";
@@ -11,6 +11,7 @@ interface AppProps {}
 interface AppState {
   inputText: string;
   kerfText: string;
+  optimizeArea: boolean;
 
   job: CutJob | undefined;
   results: CutJobResults | undefined;
@@ -25,6 +26,7 @@ export class App extends React.Component<AppProps, AppState> {
       job: undefined,
       results: undefined,
       kerfText: "0.25",
+      optimizeArea: false,
     };
   }
 
@@ -52,6 +54,17 @@ export class App extends React.Component<AppProps, AppState> {
             )}
           />
 
+          <p>
+            <input
+              type="checkbox"
+              checked={this.state.optimizeArea}
+              onChange={handleBooleanChange((optimizeArea) =>
+                this.setState({ optimizeArea })
+              )}
+            />
+            optimize area?
+          </p>
+
           <button onClick={() => this.handleProcessClick()}>process !</button>
         </div>
         <div>
@@ -67,6 +80,7 @@ export class App extends React.Component<AppProps, AppState> {
     const newJob = convertCsvToJob(this.state.inputText);
 
     newJob.settings.bladeKerf = +this.state.kerfText;
+    newJob.settings.optimizeArea = this.state.optimizeArea;
 
     console.log("job start", newJob);
 
