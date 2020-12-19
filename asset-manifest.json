@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/sheet-cutter/static/css/main.1c8be263.chunk.css",
+    "main.js": "/sheet-cutter/static/js/main.678e4d1b.chunk.js",
+    "main.js.map": "/sheet-cutter/static/js/main.678e4d1b.chunk.js.map",
+    "runtime-main.js": "/sheet-cutter/static/js/runtime-main.d106b3e5.js",
+    "runtime-main.js.map": "/sheet-cutter/static/js/runtime-main.d106b3e5.js.map",
+    "static/js/2.44b11b98.chunk.js": "/sheet-cutter/static/js/2.44b11b98.chunk.js",
+    "static/js/2.44b11b98.chunk.js.map": "/sheet-cutter/static/js/2.44b11b98.chunk.js.map",
+    "static/js/3.08da7cbc.chunk.js": "/sheet-cutter/static/js/3.08da7cbc.chunk.js",
+    "static/js/3.08da7cbc.chunk.js.map": "/sheet-cutter/static/js/3.08da7cbc.chunk.js.map",
+    "index.html": "/sheet-cutter/index.html",
+    "static/css/main.1c8be263.chunk.css.map": "/sheet-cutter/static/css/main.1c8be263.chunk.css.map",
+    "static/js/2.44b11b98.chunk.js.LICENSE.txt": "/sheet-cutter/static/js/2.44b11b98.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.d106b3e5.js",
+    "static/js/2.44b11b98.chunk.js",
+    "static/css/main.1c8be263.chunk.css",
+    "static/js/main.678e4d1b.chunk.js"
+  ]
+}
