@@ -14,3 +14,5 @@ Initial release:
     Documentation:
         ☐ Document the CSV format
         ☐ Create some help files
+        
+       REsolve error related to missing comma in data import
