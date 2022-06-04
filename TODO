@@ -16,3 +16,6 @@ Initial release:
         ☐ Create some help files
         
        REsolve error related to missing comma in data import
+
+☐ Use a better library for the TSV, CSV import
+☐ Add instructions for how to export from OnShape
