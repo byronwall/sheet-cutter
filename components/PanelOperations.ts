@@ -102,10 +102,8 @@ export function determineCutOrderForJob(job: CutJob): CutJobResults {
     const cut2 = bestCuts[1];
 
     if (cut2 !== undefined) {
-      const {
-        goodPanel: finalPanel,
-        wastePanel: wastePanel2,
-      } = getNewPanelsFromCut(goodPanel, cut2, job.settings);
+      const { goodPanel: finalPanel, wastePanel: wastePanel2 } =
+        getNewPanelsFromCut(goodPanel, cut2, job.settings);
 
       if (finalPanel === undefined) {
         console.warn("panel was undefined?");
@@ -352,14 +350,11 @@ function getBestCutSingleTest(
 }
 
 function getPanelWaste(parentPanel: Panel, childPanel: Panel) {
-  const {
-    bigDim: parentBig,
-    smallDim: parentSmall,
-  } = getBigAndSmallSideOfPanel(parentPanel);
+  const { bigDim: parentBig, smallDim: parentSmall } =
+    getBigAndSmallSideOfPanel(parentPanel);
 
-  const { bigDim: childBig, smallDim: childSmall } = getBigAndSmallSideOfPanel(
-    childPanel
-  );
+  const { bigDim: childBig, smallDim: childSmall } =
+    getBigAndSmallSideOfPanel(childPanel);
 
   // short circuit for exact match
 
@@ -417,13 +412,10 @@ function willFirstPanelHoldSecond(
 ) {
   // it will fit if the biggest dimension is bigger or equal and smaller is also bigger or equal
 
-  const {
-    bigDim: parentBig,
-    smallDim: parentSmall,
-  } = getBigAndSmallSideOfPanel(parentPanel);
-  const { bigDim: childBig, smallDim: childSmall } = getBigAndSmallSideOfPanel(
-    childPanel
-  );
+  const { bigDim: parentBig, smallDim: parentSmall } =
+    getBigAndSmallSideOfPanel(parentPanel);
+  const { bigDim: childBig, smallDim: childSmall } =
+    getBigAndSmallSideOfPanel(childPanel);
 
   return parentBig >= childBig && parentSmall >= childSmall;
 }
