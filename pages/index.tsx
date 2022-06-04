@@ -53,7 +53,7 @@ export default function App(props: AppProps) {
 
   return (
     <div id="container">
-      <h1>sheet cutter</h1>
+      <h1>sheet cutter (Next.js version)</h1>
 
       <div>
         <textarea
