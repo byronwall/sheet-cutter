@@ -1,3 +1,1 @@
-module.exports = {
-  basePath: "/sheet-cutter",
-};
+module.exports = {};
